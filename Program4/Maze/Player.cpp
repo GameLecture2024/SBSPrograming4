@@ -15,26 +15,60 @@ void Player::Init(Board* board)
     _pos = board->GetStartPos();
     _board = board;
 
+    Pos pos = _pos;
+    Pos dest =  _board->GetEndPos();
 
-    // 도착지점에 _pos 도달할때까지 반복한다. 우수법 로직을 while문 안에 구현하기
-    // if()      의사 코드를 생각을 해보세요
-    //while ()
-    //{
-    //
-    //}
+    _path.clear();
+    _path.push_back(pos); // [시작 위치][다음 위치][][][도착지]
+
+    Pos front[4] =
+    {
+        Pos{-1 , 0},  // 위
+        Pos{0 , -1},  // 왼
+        Pos{1 , 0},   // 아래
+        Pos{0 , 1},   // 오
+    };
+
+    while (pos != dest)
+    {
+         int32 newDir = (_dir - 1 + DIR_COUNT) % DIR_COUNT;
+
+       
+         if (CanGo(pos + front[newDir]))     // 1. 오른쪽 방향으로 갈 수 있습니까?
+         {
+             _dir = newDir;
+             pos += front[_dir];
+             _path.push_back(pos);
+         }
+         else if (CanGo(pos + front[_dir]))  // 2. 정면 방향을 갈 수 있습니까?
+         {
+             pos += front[_dir];
+             _path.push_back(pos);
+         } 
+         else                                // 3. 왼쪽으로 회전하세요.  
+         {
+             _dir = (_dir + 1) % DIR_COUNT;
+         }
+    }
 
 }
 
+
 void Player::Update(uint64 deltaTick)
 {
+    if (_pathIndex >= _path.size())
+        return;
+
     _sumTick += deltaTick;
 
     if (_sumTick >= MOVE_TICK)
     {
         _sumTick = 0;
 
-
-        RandomMove();
+        // 경로를 읽어와서 하나씩 움직여라
+        _pos = _path[_pathIndex];       
+        _pathIndex++;
+        //RandomMove();
     }
 
 
@@ -42,6 +76,7 @@ void Player::Update(uint64 deltaTick)
 
 // 우수법 : 오른쪽 벽을 짚고 길을 쭉 이동하면 언젠가는 미로를 탈출한다.
 // 어떻게 움직여야 탈출할 수 있나요? vector<_path>
+// X
 
 void Player::RandomMove()
 {
@@ -59,9 +94,21 @@ void Player::RandomMove()
     int randValue = rand() % 4;
 
     // TileType::EMPTY일때만 통과
-    if( _board->GetTileType(_pos + moveDir[randValue]) == TileType::EMPTY)
+    if(CanGo(_pos + moveDir[randValue]))
         _pos += moveDir[randValue];
 
-
-
 }
+
+bool Player::CanGo(Pos pos)
+{
+    TileType tileType = _board->GetTileType(pos);
+    return tileType == TileType::EMPTY;
+}
+
+
+// 길찾기
+// 문제해결 - 기존 해결 방식보다 뛰어난 문제 해결 방식을 찾는다.
+// 우수법   - 순환하는 미로구조가 아니다.
+// 알고리즘 이론 
+// 자료구조 
+// 그래프 -> 순회방식. 길찾기
