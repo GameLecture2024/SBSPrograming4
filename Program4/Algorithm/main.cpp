@@ -23,8 +23,62 @@ struct Player
 	int id;
 };
 
-// 면접에서 직접 구현 <<-
-// 만들기 위한 이론적인 원리
+template <typename T>
+class Vector
+{
+public:
+	Vector() : _data(nullptr), _size(0), _capacity(0){}
+	~Vector()
+	{
+		if(_data)
+			delete[] _data;
+	}
+public:
+	// 데이터가 없을떄 _size 0 : _capacity 0
+	void push_back(const T& data)
+	{
+		if (_size == _capacity)
+		{
+			int newCapacity = _capacity * 1.5;  // 0     1 * 1.5 = 1.5 1
+			if (newCapacity == _capacity)
+				newCapacity++;
+
+			reserve(newCapacity);
+		}
+		_data[_size] = data;
+
+		_size++;
+	}
+
+	void reserve(int capacity)
+	{
+		// capacity 크기만큼 data를 new만든다.  >> 새로운 메모리 공간을 생성한다.
+		_capacity = capacity;
+
+		T* newData = new T[_capacity];
+		// 기존 데이터를 새로운 공간으로 이주시켜줘.(★★★★)
+
+		for (int i = 0; i < _size; i++)
+			newData[i] = _data[i];
+
+		if(_data)
+			delete[] _data; // 기존
+
+		_data = newData;
+	}
+
+	T& operator[](const int index) {
+		return _data[index];
+	}		                
+
+	int size() { return _size; }
+	int capacity() { return _capacity; }
+
+private:
+	T* _data;
+	int _size;
+	int _capacity;
+};
 
 int main()
 {
@@ -36,14 +90,36 @@ int main()
 	// (맨처음) (맨끝) (중간) 삽입 삭제   Good Bad
 	// 임의 접근 (Random Access)         Good Bad
 
-	vector<int> v;
+	// 123469131928
+	// reserve 최소한으로 하려면 어떻게 하면 좋을까? 
+	// 미리 만들어서 빠르게 사용할 수 있다. 갯수를 미리 만들어 두고, 
+	// 1000명.  10000명 ->(10000) 15000 -> 30000 -> 45000 -> ....   10만.
 
+	vector<int> v;
+	v.reserve(100);
 	for (int i =0; i < 25; i++)
 	{
 		v.push_back(i);
 		cout << v[i] << " " << v.size() << " " << v.capacity() << endl;
 	}
-	  
+	v.clear();
+	vector<int> temp;
+	swap(v, temp);
+	cout << v.size() << " " << v.capacity() << endl;
+
+	// [999][0][1][2] //[3][4] 
+	// [999][0][1][2]    
+
+	// [0][1] [999] [2]
+
+	// 면접 단골 질문(★★)
+	// Q) 데이터 insert, 데이터 push_front 지원X 안하는 이유
+	// A) 느리다. n만큼  order of N -  O(N)
+
+	// Random Access(★★★★★)   시작 주소 + <<  ---->  주소가 연속적으로 배치가 되어 있기 때문에
+	// Id 45000         _data[45000]    O(1)  
+	
+
 	// iterator << 뭘까 ?
 	// v.push_front(); vector 녀석은 push_front지원을 안해주구나 없구나.
 	// v.insert()
@@ -51,34 +127,34 @@ int main()
 	// iterator가 뭔가요? ptr인데, 자료구조에 귀속되어 있는 ptr
 	// 결론 : STL 자료구조(컨테이너) - 반복자(iterator)를 통해서 조작할 수 있다.
 
-	vector<int>::iterator itBegin = v.begin(); 
-	vector<int>::iterator itEnd = v.end();
-	cout << endl;
-	
-
-	v.insert(v.begin() + 5, 9999);
-	v.erase(v.begin() + 5);
-
-	// 99번 째 아이디를 가지고 있는 플레이어를 삭제해주세요.
-
-	for (vector<int>::iterator it = v.begin(); it != v.end();)
-	{
-		int data = (*it);
-
-		if (data == 3)
-		{
-			it = v.erase(it);     // 
-		}
-		else
-		{
-			++it;
-		}		
-	}
-
-	for (vector<int>::iterator it = v.begin(); it != v.end(); ++it)
-	{
-		cout << (*it) << " ";
-	}
+	//vector<int>::iterator itBegin = v.begin(); 
+	//vector<int>::iterator itEnd = v.end();
+	//cout << endl;
+	//
+	//
+	//v.insert(v.begin() + 5, 9999);
+	//v.erase(v.begin() + 5);
+	//
+	//// 99번 째 아이디를 가지고 있는 플레이어를 삭제해주세요.
+	//
+	//for (vector<int>::iterator it = v.begin(); it != v.end();)
+	//{
+	//	int data = (*it);
+	//
+	//	if (data == 3)
+	//	{
+	//		it = v.erase(it);     // 
+	//	}
+	//	else
+	//	{
+	//		++it;
+	//	}		
+	//}
+	//
+	//for (vector<int>::iterator it = v.begin(); it != v.end(); ++it)
+	//{
+	//	cout << (*it) << " ";
+	//}
 
 	// remove_if()
 }
