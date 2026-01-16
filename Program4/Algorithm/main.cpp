@@ -18,50 +18,68 @@ using namespace std;
 // sequential  절차적 컨테이너 << array 배열
 // relational  관계형 컨테이너
 
-struct Player
-{
-	int id;
-};
-
 // iterator : ptr 내장하고 있는 클래스.	wraping	 
 // STL container 안에서 포인터로 쓴다.
+
+// class   (T == int 4) + Node 8 + 8 = 20
+// Node 크기 측정. 4 + 나자신(4 + 나자신 + 나자신) + 나자신	  << 못쓴다
+// Node*  (void*) 주소를 저장하겠다. class Type이 Node인 녀석.
+
+
+// [꼬리] -> [머리]
+// [꼬리] <- [머리]
+
+// 단방향
+// 양방향 
+// 순환구조
+template <typename T>
+class Node
+{
+public:
+	Node() : _prev(nullptr), _next(nullptr), _data(T()) {}
+	Node(const T& val) : _prev(nullptr), _next(nullptr), _data(val) {}
+public:
+	T _data;
+	Node* _prev;
+	Node* _next;
+};
 
 template <typename T>
 class Iterator
 {
 public:
-	Iterator() : _ptr(nullptr) {}
-	Iterator(T* ptr) : _ptr(ptr) {}
+	Iterator() : _node(nullptr) {}
+	Iterator(Node<T>* node) : _node(node) {}
 
 public:
 	Iterator& operator++()	// 전위 연산자
 	{
-		_ptr++;
+		_node = _node->_next;
 		return *this; // this 클래스의 주소.	  _ptr주소의 주소
 	}
 
-	Iterator& operator++(int)  // 후위 연산자를 표현하는 방법 it++
+	Iterator operator++(int)  // 후위 연산자를 표현하는 방법 it++
 	{
 		Iterator temp = *this;	// 새로운 객체 생성. 메모리 할당 대입.
-		_ptr++;
+		_node = _node->_next;
 		return temp;
 	}
 
 	Iterator& operator--()
 	{
-		_ptr--;
+		_node = _node->prev;
 		return *this;
 	}
-	Iterator& operator--(int)  // 후위 연산자를 표현하는 방법 it++
+	Iterator operator--(int)  // 후위 연산자를 표현하는 방법 it++
 	{
 		Iterator temp = *this;	// 새로운 객체 생성. 메모리 할당 대입.
-		_ptr--;
+		_node = _node->prev;
 		return temp;
 	}
 
 	bool operator==(const Iterator& other)
 	{
-		return _ptr == other._ptr;
+		return _node == other._node;
 	}
 
 	bool operator!=(const Iterator& other)
@@ -69,170 +87,147 @@ public:
 		return !(*this == other);
 	}
 
-	Iterator operator+(const int count)
-	{
-		Iterator temp = *this;
-		temp._ptr += count;
-		return temp;
-	}
-
-	T& operator*() { return *_ptr; }
-
-	// int* ptr;  *ptr;
-
-	//                 ++it;  	 it++;	 미세한 성능 차이.
-
 public:
-	T* _ptr;
+	Node<T>* _node;
 };
 
+
+// 	[tail] <->   [head]	    
+
 template <typename T>
-class Vector
+class List
 {
 public:
-	Vector() : _data(nullptr), _size(0), _capacity(0) {}
-	~Vector()
+	List() : _size(0)
 	{
-		if (_data)
-			delete[] _data;
+		_head = new Node<T>();
+		_tail = new Node<T>();
+		_head->_next = _tail;
+		_tail->_prev = _head;
+	}
+	~List()
+	{
+		while (_size > 0)
+			pop_back();
+
+		delete _head;
+		delete _tail;
 	}
 public:
-	// 데이터가 없을떄 _size 0 : _capacity 0
-	void push_back(const T& data)
-	{
-		if (_size == _capacity)
-		{
-			int newCapacity = _capacity * 1.5;  // 0     1 * 1.5 = 1.5 1
-			if (newCapacity == _capacity)
-				newCapacity++;
 
-			reserve(newCapacity);
-		}
-		_data[_size] = data;
+	// [ tail ]	- Node			   [head]
+	void push_back(const T& val)  // add
+	{
+		AddNode(_tail, val);
+	}
+
+	void pop_back()				  // remove
+	{
+		RemoveNode(_tail->_prev);
+	}
+	// [ tail ]	- [_prevNode]	 -[ Node] -	[before]	   [head]
+	Node<T>* AddNode(Node<T>* before, const T& val)
+	{
+		Node<T>* newNode = new Node<T>(val);
+		Node<T>* prevNode = before->_prev;
+
+		newNode->_next = before;
+		before->_prev = newNode;
+
+		newNode->_prev = prevNode;
+		prevNode->_next = newNode;	  // 
 
 		_size++;
+
+		return 	newNode;
 	}
 
-	void reserve(int capacity)
+	// [ tail ]	- [_prevNode] -[ Node] -	[_nextNode]	   [head]
+	Node<T>* RemoveNode(Node<T>* node)
 	{
-		// capacity 크기만큼 data를 new만든다.  >> 새로운 메모리 공간을 생성한다.
-		_capacity = capacity;
+		Node<T>* nextNode = node->_next;
+		Node<T>* prevNode = node->_prev;
 
-		T* newData = new T[_capacity];
-		// 기존 데이터를 새로운 공간으로 이주시켜줘.(★★★★)
+		prevNode->_next = nextNode;
+		nextNode->_prev = prevNode;
+	
+		delete node;
+		_size--;
 
-		for (int i = 0; i < _size; i++)
-			newData[i] = _data[i];
-
-		if (_data)
-			delete[] _data; // 기존
-
-		_data = newData;
+		return 	nextNode;
 	}
 
-	T& operator[](const int index) {
-		return _data[index];
-	}
 
 	int size() { return _size; }
-	int capacity() { return _capacity; }
+
 public:
 	typedef Iterator<T> iterator;
 
-	iterator begin() { return iterator(&_data[0]); }
-	iterator end() { return begin() + _size; }
+	iterator begin() { return iterator(_head->_next); }
+	iterator end() { return iterator(_tail); }
+
+	iterator insert(iterator it, const T& value)
+	{
+		Node<T>* node = AddNode(it._node, value);
+		return iterator(node);
+	}
+
+	iterator erase(iterator it)
+	{
+		Node<T>* node = RemoveNode(it._node);
+		return iterator(node);
+	}
 
 
 private:
-	T* _data;
+	Node<T>* _tail;
+	Node<T>* _head;
 	int _size;
-	int _capacity;
 };
 
+// 배열 -> vector -> list 
+
+//                                          Vector                        List									      
+//  뒤에 삽입/삭제 속도						  o(1)						   o(1)
+//  중간 삽입/삭제 (첫번째, 아무 위치)	   		  o(n)						   o(1)
+//  임의 접근								  o(1)                         o(n)
+
+// list 노드 기반으로 데이터를 연결. class node
+
+// list::iterator 함께 사용해야지만 중간 삽입 삭제 빠르다.
+// 장점 : 중간 삽입 삭제 빠르다
+// 단점 : 임의 접근이 느리다.
+
+// 중간을 삭제하려면 중간에 접근을 해야하는데 단점이 장점을 가리니깐 장점이 아니지 않나요?
+// 데이터를 찾아서 삭제를 하려고하면 느립니다. << list 자체가 사용에 불편한 이유입니다.
+// iterator 도구 사용하기 때문에. iterator미리 찾아 뒀더라면?  매우 빠르다.
 
 int main()
 {
+	List<int> li;
 
-	// 플레이어를 최대 10명까지만 저장할 수 있다.
-	// 계속 층이 올라가고 있는 아파트 -> 실시간 추가할 수 있는 배열 같은 것이 있으면 좋겠다.
-	// array (고정 배열)  <-> 가변 배열	 vector , list
-	// 그러면 무조건 array가 vector보다 안좋나요? 
+	//   [999] [1] [2] [3] [444]  [4] [5]
 
-	// (맨처음) (맨끝) (중간) 삽입 삭제   Good Bad
-	// 임의 접근 (Random Access)         Good Bad
+	li.push_back(1);
+	li.push_back(2);
+	li.push_back(3);
+	li.push_back(4);
+	li.push_back(5);
 
-	// 123469131928
-	// reserve 최소한으로 하려면 어떻게 하면 좋을까? 
-	// 미리 만들어서 빠르게 사용할 수 있다. 갯수를 미리 만들어 두고, 
-	// 1000명.  10000명 ->(10000) 15000 -> 30000 -> 45000 -> ....   10만.
-
-	Vector<int> v;
-	v.reserve(100);
-	for (int i =0; i < 25; i++)
+	//li.push_front(999);
+	//
+	auto insertIt = li.begin();
+	
+	for (int i = 0; i < 4; i++)	  // <<<< 주의 깊게 생각(★★★★)
 	{
-		v.push_back(i);
-		cout << v[i] << " " << v.size() << " " << v.capacity() << endl;
-	}
-
-	
-
-	auto vStart = v.begin();
-	cout << "후위 연산자, 전위 연산자" << endl;
-	//cout << "전위 연산자 : " << *(++vStart) << endl;    1이 더해진 후에 값이 나왔습니다
-	cout << "후위 연산자 : " << *(vStart++) << endl;		 // 0을 먼저 출력하고 ++일어났다.
-	//v.clear();
-	//vector<int> temp;
-	//swap(v, temp);
-	//cout << v.size() << " " << v.capacity() << endl;
-
-	// [999][0][1][2] //[3][4] 
-	// [999][0][1][2]    
-
-	// [0][1] [999] [2]
-
-	// 면접 단골 질문(★★)
-	// Q) 데이터 insert, 데이터 push_front 지원X 안하는 이유
-	// A) 느리다. n만큼  order of N -  O(N)
-
-	// Random Access(★★★★★)   시작 주소 + <<  ---->  주소가 연속적으로 배치가 되어 있기 때문에
-	// Id 45000         _data[45000]    O(1)  
-	
-
-	// iterator << 뭘까 ?
-	// v.push_front(); vector 녀석은 push_front지원을 안해주구나 없구나.
-	// v.insert()
-
-	// iterator가 뭔가요? ptr인데, 자료구조에 귀속되어 있는 ptr
-	// 결론 : STL 자료구조(컨테이너) - 반복자(iterator)를 통해서 조작할 수 있다.
-
-	auto itBegin = v.begin(); 
-	auto itEnd = v.end();
-	cout << endl;
-	
-	
-	//v.insert(v.begin() + 5, 9999);
-	//v.erase(v.begin() + 5);
-	
-	// 99번 째 아이디를 가지고 있는 플레이어를 삭제해주세요.
-	
-	for (auto it = v.begin(); it != v.end();)
-	{
-		int data = (*it);
-	
-		if (data == 3)
-		{
-			//it = v.erase(it);     // 
-		}
-		else
-		{
-			++it;
-		}		
+		insertIt++;
 	}
 	
-	for (Vector<int>::iterator it = v.begin(); it != v.end(); ++it)
+	li.insert(insertIt, 444);		    // 문제
+
+	for (auto it = li.begin(); it != li.end(); ++it)
 	{
-		cout << (*it) << " ";
+		cout << it._node->_data << " ";
 	}
 
-	// remove_if()
 }
