@@ -12,45 +12,9 @@ Player::~Player()
 
 void Player::Init(Board* board)
 {
-    _pos = board->GetStartPos();
     _board = board;
 
-    Pos pos = _pos;
-    Pos dest =  _board->GetEndPos();
-
-    _path.clear();
-    _path.push_back(pos); // [시작 위치][다음 위치][][][도착지]
-
-    Pos front[4] =
-    {
-        Pos{-1 , 0},  // 위
-        Pos{0 , -1},  // 왼
-        Pos{1 , 0},   // 아래
-        Pos{0 , 1},   // 오
-    };
-
-    while (pos != dest)
-    {
-         int32 newDir = (_dir - 1 + DIR_COUNT) % DIR_COUNT;
-
-       
-         if (CanGo(pos + front[newDir]))     // 1. 오른쪽 방향으로 갈 수 있습니까?
-         {
-             _dir = newDir;
-             pos += front[_dir];
-             _path.push_back(pos);
-         }
-         else if (CanGo(pos + front[_dir]))  // 2. 정면 방향을 갈 수 있습니까?
-         {
-             pos += front[_dir];
-             _path.push_back(pos);
-         } 
-         else                                // 3. 왼쪽으로 회전하세요.  
-         {
-             _dir = (_dir + 1) % DIR_COUNT;
-         }
-    }
-
+    RightHand();
 }
 
 
@@ -103,6 +67,54 @@ bool Player::CanGo(Pos pos)
 {
     TileType tileType = _board->GetTileType(pos);
     return tileType == TileType::EMPTY;
+}
+
+void Player::RightHand()
+{
+    _pos = _board->GetStartPos();
+    
+
+    Pos pos = _pos;
+    Pos dest = _board->GetEndPos();
+
+    _path.clear();
+    _path.push_back(pos); // [시작 위치][다음 위치][][][도착지]
+
+    Pos front[4] =
+    {
+        Pos{-1 , 0},  // 위
+        Pos{0 , -1},  // 왼
+        Pos{1 , 0},   // 아래
+        Pos{0 , 1},   // 오
+    };
+
+    while (pos != dest)
+    {
+        int32 newDir = (_dir - 1 + DIR_COUNT) % DIR_COUNT;
+
+
+        if (CanGo(pos + front[newDir]))     // 1. 오른쪽 방향으로 갈 수 있습니까?
+        {
+            _dir = newDir;
+            pos += front[_dir];
+            _path.push_back(pos);
+        }
+        else if (CanGo(pos + front[_dir]))  // 2. 정면 방향을 갈 수 있습니까?
+        {
+            pos += front[_dir];
+            _path.push_back(pos);
+        }
+        else                                // 3. 왼쪽으로 회전하세요.  
+        {
+            _dir = (_dir + 1) % DIR_COUNT;
+        }
+    }
+
+    // 1. vector<Pos> path. index 
+    // if(path[i] == path[i+1]) << 되돌아가는 경우이기 때문에 path 지워주자.
+    // Stack               [X]    [O]
+    //                         pop          
+
 }
 
 
