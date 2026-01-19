@@ -31,7 +31,7 @@ using namespace std;
 // Deque -- stack의 성능이 좋겠구나.
 
 
-template <typename T, template<typename>class Container>
+template <typename T, typename Container = vector<T>>
 class Stack	  // LIFO
 {
 public:
@@ -61,7 +61,7 @@ public:
 	 }
 
 private:
-	vector<int> _container;
+	Container _container;
 
 };
 
@@ -74,7 +74,7 @@ private:
 
 int main()
 {
-	stack<int> s;
+	Stack<int, vector<int>> s;
 	s.push(1);
 	s.push(2);
 	s.push(3);

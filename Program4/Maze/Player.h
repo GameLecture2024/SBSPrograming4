@@ -6,7 +6,7 @@ class Player
 {
 	enum
 	{
-		MOVE_TICK = 100,
+		MOVE_TICK = 10,
 	};
 
 public:
@@ -35,3 +35,10 @@ private:
 	void			RightHand();
 };
 
+
+// RandomMove - 어떤 경우에도 탈출을 못하는 경우가 생긴다.
+// RightHand -  문제가 있다. (한번이라도 간적이 있으면 체크)
+// bool true false
+// Pos[25][25] = false(true) << 가지마라.
+// 선형 자료구조에서는 길이 막힙니다.
+// 그래프. 길이 2개보다 많다.														 

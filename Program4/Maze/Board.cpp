@@ -42,8 +42,8 @@ void Board::Render()
 // binary Tree 
 void Board::GenerateMap()
 {
-	BinaryTree();
-
+	//BinaryTree();
+	BadMap();
 }
 
 TileType Board::GetTileType(Pos pos)
@@ -122,6 +122,22 @@ void Board::BinaryTree()
 				_tile[y + 1][x] = TileType::EMPTY;
 			}
 
+		}
+	}
+}
+
+void Board::BadMap()
+{
+	for (int y = 0; y < _size; y++)
+	{
+		for (int x = 0; x < _size; x++)
+		{
+			if (y == 1 || x == 1 || y == _size - 2 || x == _size - 2)
+				_tile[y][x] = TileType::EMPTY;
+			else if(y == _size/2 || x == _size/2)
+				_tile[y][x] = TileType::EMPTY;
+			else
+				_tile[y][x] = TileType::WALL;
 		}
 	}
 }

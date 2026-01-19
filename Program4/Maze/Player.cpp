@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Player.h"
 #include "Board.h"
+#include <stack>
 
 Player::Player()
 {
@@ -88,33 +89,62 @@ void Player::RightHand()
         Pos{0 , 1},   // 오
     };
 
+    int count = 0;
+    int maxCount = 200;
+
     while (pos != dest)
     {
         int32 newDir = (_dir - 1 + DIR_COUNT) % DIR_COUNT;
 
+        if (count >= maxCount)
+            return;
 
         if (CanGo(pos + front[newDir]))     // 1. 오른쪽 방향으로 갈 수 있습니까?
         {
             _dir = newDir;
             pos += front[_dir];
             _path.push_back(pos);
+            count++;
         }
         else if (CanGo(pos + front[_dir]))  // 2. 정면 방향을 갈 수 있습니까?
         {
             pos += front[_dir];
             _path.push_back(pos);
+            count++;
         }
         else                                // 3. 왼쪽으로 회전하세요.  
         {
             _dir = (_dir + 1) % DIR_COUNT;
         }
     }
-
     // 1. vector<Pos> path. index 
     // if(path[i] == path[i+1]) << 되돌아가는 경우이기 때문에 path 지워주자.
-    // Stack               [X]    [O]
+    // Stack               [a][b][c][d][d] [O]
     //                         pop          
 
+
+
+    stack<Pos> s;
+    for (int i = 0; i < _path.size() - 1; i++)
+    {
+        if (s.empty() == false && s.top() == _path[i + 1])
+            s.pop();
+        else
+            s.push(_path[i]);
+    }
+
+    if (s.empty() == false)
+        s.push(_path.back());
+
+    vector<Pos> path;
+
+    while (s.empty() == false)
+    {
+        path.push_back(s.top());
+        s.pop();
+    }
+    reverse(path.begin(), path.end());
+    _path = path;
 }
 
 
