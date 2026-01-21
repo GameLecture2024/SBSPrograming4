@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Board.h"
 #include <stack>
+#include <queue>
 
 Player::Player()
 {
@@ -15,7 +16,8 @@ void Player::Init(Board* board)
 {
     _board = board;
 
-    RightHand();
+    //RightHand();
+    BFS();
 }
 
 
@@ -72,9 +74,7 @@ bool Player::CanGo(Pos pos)
 
 void Player::RightHand()
 {
-    _pos = _board->GetStartPos();
-    
-
+    _pos = _board->GetStartPos();  
     Pos pos = _pos;
     Pos dest = _board->GetEndPos();
 
@@ -147,6 +147,69 @@ void Player::RightHand()
     _path = path;
 }
 
+void Player::BFS()
+{
+    _pos = _board->GetStartPos();
+    Pos pos = _pos;
+    Pos dest = _board->GetEndPos();
+
+    _path.clear();
+    _path.push_back(pos); // [시작 위치][다음 위치][][][도착지]
+
+    Pos front[4] =
+    {
+        Pos{-1 , 0},  // 위
+        Pos{0 , -1},  // 왼
+        Pos{1 , 0},   // 아래
+        Pos{0 , 1},   // 오
+    };
+
+    // discover , queue  , parent
+    const int size = _board->GetSize();
+    vector<vector<bool>> discovered(size, vector<bool>(size, false)); // 25정점 모두 false
+    vector<vector<Pos>> parent(size, vector<Pos>(size, Pos{-1,-1})); // 부모가 정해지지 않았다.
+
+    queue<Pos> q;
+    q.push(pos);
+    discovered[pos.y][pos.x] = true;  
+    parent[pos.y][pos.x] = pos;        // 출발지점이 곧 부모인 녀석이 조건으로 쓰인다.
+
+    while (q.empty() == false)
+    {
+        pos = q.front();
+        q.pop();
+
+        if (pos == dest)              // 의심.
+            break;
+
+        for (int i = 0; i < DIR_COUNT; i++)
+        {
+            Pos nextPos = pos + front[i];
+            if (CanGo(nextPos) == false)
+                continue;
+
+            if (discovered[nextPos.y][nextPos.x])
+                continue;
+
+            q.push(nextPos);
+            discovered[nextPos.y][nextPos.x] = true;
+            parent[nextPos.y][nextPos.x] = pos;        // 출발지점이 곧 부모인 녀석이 조건으로 쓰인다.
+        }
+    }
+
+    _path.clear();
+    pos = dest;
+
+    while (true)
+    {
+        _path.push_back(pos);
+        if (pos == parent[pos.y][pos.x])
+            break;
+        pos = parent[pos.y][pos.x];
+    }
+    //reverse(_path.begin(), _path.end());
+}
+
 
 // 길찾기
 // 문제해결 - 기존 해결 방식보다 뛰어난 문제 해결 방식을 찾는다.
@@ -154,3 +217,10 @@ void Player::RightHand()
 // 알고리즘 이론 
 // 자료구조 
 // 그래프 -> 순회방식. 길찾기
+
+// BFS
+// 장점 : 미로를 이동할 때 비용이 일정할 때 사용한다.
+// 단점 : 미로 이동 간에 비용이 다르다면 사용할 수 없다.
+
+// 대각선으로 이동하는 게임. 물리법칙을 무시하는 게임.
+// 해결 방법 : 비용을 추가한다. => 다익스트라 알고리즘  

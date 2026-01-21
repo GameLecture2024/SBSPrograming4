@@ -140,7 +140,7 @@ vector<bool> visited(8, false);
 
 
 //
-
+// 모든 선이 연결되어 있는지 확인할 때 유용 - 
 void DFS(int here)
 {
 	visited[here] = true; 
@@ -175,36 +175,38 @@ void DFSmatrix(int here)
 // 	       [3][8][6]
 // discover 발견했다.
 // here = 3 
+
+// Queue
+// bool 
+// parent   - 시작지점 도착지점
+// distance	- 1
+// [] {1,2,3}
 void BFS(int here)
 {
 	vector<bool> discovered(8, false);
-	vector<int> parent(8, -1);	      // 현재 정점으로 가기 위한 직전의 정점
-	vector<int> distance(8, -1);	  // 시작 정점에서 해당 정점까지 가는 거리
+	vector<int> parent(8, -1);
+	vector<int> distance(8, -1);
 	queue<int> q;
 	q.push(here);
 	discovered[here] = true;
-	parent[here] = here;      // 부모를 탐색했더니 내가 나왓네? 시작점.
-	distance[here] = 0;       // distance = 0 ? 시작점. -1 ? 이 정점은 이동할 수 없는 정점입니다.
+	parent[here] = here;     // 시작 지점은 부모가 나 자신이다.
+	distance[here] = 0;
 
 	while (q.empty() == false)
 	{
 		int here = q.front();
 		q.pop();
-		cout << "방문한 정점 : " << here + 1 << endl;
-		for (int there : adjacent[here])	 //   for(int there = 0; adjacent[here].size(); there++)
+		
+		for (int there : adjacent[here])
 		{
 			if (discovered[there])
 				continue;
-
 			q.push(there);
 			discovered[there] = true;
-			parent[there] = here;
+			parent[there] = here;     // 시작 지점은 부모가 나 자신이다.
 			distance[there] = distance[here] + 1;
 		}
 	}
-
-	// 미로 찾기. 목적지.
-	// Q. 1  ->  7 가는 길을 알고 싶다. <<
 
 	int dest = 6;
 	vector<int> _path;
@@ -217,6 +219,8 @@ void BFS(int here)
 	}
 
 }
+
+
 
 int main()
 {
