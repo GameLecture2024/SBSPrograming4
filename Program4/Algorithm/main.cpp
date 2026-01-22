@@ -9,97 +9,159 @@
 #include <set>
 #include <unordered_map>
 #include <algorithm>
+#include <string>
 using namespace std;
 
-vector<vector<int>> adjacent;
+// minDistance 구하는 방법.
+// n번 순회해서 제일 작은 값을 고른다.
 
-void CreateGraph()
+int minDistance()
 {
-	adjacent =
+	vector<int> v;
+
+	v.push_back(10);
+	v.push_back(30);
+	v.push_back(20);
+	v.push_back(40);
+
+	int bestValue = INT32_MAX; // 값이 쌀 수 록 싸다.
+
+	for (int i = 0; i < v.size(); i++)
 	{
-		{-1,10,+1,-1,-1,-1,-1,+3 },
-		{+8,-1,-1,-1,-1,+2,-1,+1 },
-		{+7,-1,-1,+1,+3,-1,-1,-1 },
-		{-1,-1,+9,-1,+4,-1,-1,-1 },
-		{-1,-1,+6,+5,-1,-1,-1,-1 },
-		{-1,+3,-1,-1,-1,-1,+5,-1 },
-		{-1,-1,-1,-1,-1,+4,-1,-1 },
-		{+8,+2,-1,-1,-1,-1,-1,-1 }
-	};
-}
-
-// BFS 방식 + 가중치 추가한 버전.
-int Dijkstra(int here)
-{
-	struct CostVertex
-	{
-		int vertex;
-		int cost;
-	};
-
-	vector<int> parent(8, -1);
-	vector<int> best(8, INT32_MAX);	    // 작은 값이 좋다.
-
-	
-
-	list<CostVertex> discovered;
-	discovered.push_back(CostVertex{ here, 0 } );
-	best[here] = 0;      // 거리
-	parent[here] = here; // 부모의 정점 = 내 정점(0 의 정점의 부모는 0이다)
-	
-	while (discovered.empty() == false)
-	{
-		list<CostVertex>::iterator bestIt;
-		int bestCost = INT32_MAX;
-		// 가장 비용이 낮은 것을 선택해서 넣어야 한다.
-	    // mindistance 구하기 위한 알고리즘.
-
-		for (auto it = discovered.begin(); it != discovered.end(); ++it)
-		{
-			if (it->cost < bestCost)      // it++ it++ it++ it++ it++
-			{
-				bestCost = it->cost;
-				bestIt = it;
-			}
-		}
-
-		// 반복문이 끝나면 minDistance 데이터 구할 수 있다.
-		int cost = bestIt->cost;
-		here = bestIt->vertex;
-		discovered.erase(bestIt);    // 가장 비용이 싼 it 지워버리고 남은 것들도. 다시 정의하기 위해서
-
-		if (best[here] < cost)       //  통과 못했다? 너는 최선이 아니야. 위로올라가
+		if (bestValue < v[i])
 			continue;
 
-		//  best << 최선의 코드를 바꿔치기
-		
-		for (int there = 0; there < adjacent.size(); there++)
-		{
-			if (adjacent[here][there] == -1)
-				continue;
+		// 아래쪽 내려왔다? 더 작은 값을 찾았구나
+		bestValue = v[i];
 
-			int nextCost = best[here] + adjacent[here][there];
-			if (best[there] <= nextCost)         // nextCost 최선이 아니다? 변경해줄 필요없다.
-				continue;
-			
-			best[there] = nextCost;
-			parent[there] = here;
-			discovered.push_back(CostVertex{ there, nextCost });
+	}
+
+	cout << bestValue << endl;
+
+	return bestValue;
+}
+
+// 우선 순위 큐.
+// 우선 순위가 높은 값부터 출력해주는 특별한 컨테이너.
+// 값이 가장 큰 것을 위로, 값이 가장 작은 것을 위로
+// 가장 작거나(큰) 값을 O(1) 출력할 수 있다.
+
+// 힙 트리
+// 트리 <<
+
+
+void examPQ()
+{
+	priority_queue<int, vector<int>, greater<int>> pq;
+
+	for (int i = 0; i < 20; i++)
+	{
+		int rValue = rand() % 100;
+		pq.push(rValue);
+	}
+
+	while (pq.empty() == false)
+	{
+		int count = pq.top();
+		pq.pop();
+
+		cout << count << " ";
+	}
+
+}
+
+// "계층구조를 가지는" + 정점과 간선으로 구성된 데이터 표현 방식
+// 트리는 그래프의 특수한 하나의 형태이다.
+
+// 트리 용어
+/*
+*  루트
+   부모
+   자식
+   형제
+   선조
+   자손
+   잎(leaf)
+   깊이(depth)   :  선택한 노드에서 루트까지의 간선의 수 
+   높이(height)  :  Max(depth)
+   서브트리
+*/
+
+using NodePtr = shared_ptr<struct Node>;
+
+struct Node
+{
+	Node() {}
+	Node(const string& data) : _data(data) {}
+
+public:
+	string _data;
+	vector<NodePtr> children;
+};
+
+NodePtr CreateTree()
+{
+	NodePtr root = make_shared<Node>("S사의 게임 조직도");
+	// 아트팀, 기획팀, 프로그래밍팀
+	{
+		NodePtr node = make_shared<Node>("아트팀");
+		root->children.push_back(node);
+		{
+			NodePtr leaf = make_shared<Node>("A");
+			node->children.push_back(leaf);
+		}
+		{
+			NodePtr leaf = make_shared<Node>("B");
+			node->children.push_back(leaf);
+		}
+	}
+	{
+		NodePtr node = make_shared<Node>("프로그래밍팀");
+		root->children.push_back(node);
+		{
+			NodePtr leaf = make_shared<Node>("A");
+			node->children.push_back(leaf);
+		}
+		{
+			NodePtr leaf = make_shared<Node>("B");
+			node->children.push_back(leaf);
 		}
 	}
 
-	return 0;
+	return root;
+}
+
+// 트리 -> 재귀함수
+
+void Print(NodePtr root, int depth)
+{
+	for (int i = 0; i < depth; i++)
+		cout << "-";
+
+	cout << root->_data << endl;
+
+	for (auto& child : root->children)
+		Print(child, depth + 1);
 
 }
 
+// 트리 규칙을 정한다. 정책을 정한다.
+// 강제로 제한. 2명 이하로만 가질 수 있다. BST
+// 힙 트리. 나만의 트리 규칙이 있겠구나.
+// 부모는 항상 자식보다 우선 순위가 높은 가치를 가진다.
+// 최대 자식은 2개만 가질 수 있는데, 왼쪽 부터 채워나가야 한다.
+// [0] [1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]
+
+// left children : 	i x 2 + 1;
+// right children : i x 2 + 2;
+// parent : (i - 1) / 2
 
 int main()
 {
-	CreateGraph();
-	Dijkstra(0);
+	//srand(time(nullptr));
+	//minDistance();
+	//examPQ();
+	NodePtr root =  CreateTree();
+	Print(root, 0);
 }
 
-// Maze 적용은 하지 않을겁니다
-// BFS ->  다익스트라 모든 간선의 비용이 1인 것과 같다.  (?)
-// Priority_Queue (우선 순위 큐)
-// AStar ->  다익스트라 + @  // 
