@@ -15,6 +15,10 @@ using namespace std;
 // minDistance 구하는 방법.
 // n번 순회해서 제일 작은 값을 고른다.
 
+// 데이터를 push할때도 시간을 발생.
+// vector가장 큰 특징. push_back 매우 빠르다 O(1)
+// 최소 값 찾을려면 n번도 해야 한다 -> O(n)
+
 int minDistance()
 {
 	vector<int> v;
@@ -50,9 +54,82 @@ int minDistance()
 // 트리 <<
 
 
+// push O(logN)
+// top() O(1)
+template<typename T, typename Container = vector<T>>
+class Priority_queue
+{
+public:
+
+	// left children : 	i x 2 + 1;
+	// right children : i x 2 + 2;
+	// parent : (i - 1) / 2
+
+	void push(const T& value)
+	{
+		_heap.push_back(value);
+
+		int now = static_cast<int>(_heap.size()) - 1;
+
+		while (now > 0)
+		{
+			int parent = (now - 1) / 2;
+
+			if (_heap[now] < _heap[parent])	  // 나 부모한테 졌어요.
+				break;
+
+			// 부모를 이겼다. 나랑 바꿔
+			::swap(_heap[parent], _heap[now]);
+			now = parent;
+		}
+	}
+	void pop()
+	{
+		_heap[0] = _heap.back();  // 왼쪽 부터 채워나가기 규칙 지키기.
+		_heap.pop_back();
+
+		int now = 0;
+
+		while (true)
+		{
+			int left = 2 * now + 1;
+			int right = 2 * now + 2;
+
+			if (left >= _heap.size())
+				break;
+
+			int next = now;
+			if (_heap[next] < _heap[left])
+				next = left;
+			
+			if (right < _heap.size() && _heap[next] < _heap[right])
+				next = right;
+
+			if (next == now)
+				break;
+
+			::swap(_heap[now], _heap[next]);
+			now = next;
+		}
+	}
+	T& top()
+	{
+		return _heap[0];
+	}
+
+	bool empty()
+	{
+		return _heap.empty();
+	}
+
+private:
+	Container _heap = {};
+};
+
+
 void examPQ()
 {
-	priority_queue<int, vector<int>, greater<int>> pq;
+	Priority_queue<int, vector<int>> pq;
 
 	for (int i = 0; i < 20; i++)
 	{
@@ -70,80 +147,7 @@ void examPQ()
 
 }
 
-// "계층구조를 가지는" + 정점과 간선으로 구성된 데이터 표현 방식
-// 트리는 그래프의 특수한 하나의 형태이다.
 
-// 트리 용어
-/*
-*  루트
-   부모
-   자식
-   형제
-   선조
-   자손
-   잎(leaf)
-   깊이(depth)   :  선택한 노드에서 루트까지의 간선의 수 
-   높이(height)  :  Max(depth)
-   서브트리
-*/
-
-using NodePtr = shared_ptr<struct Node>;
-
-struct Node
-{
-	Node() {}
-	Node(const string& data) : _data(data) {}
-
-public:
-	string _data;
-	vector<NodePtr> children;
-};
-
-NodePtr CreateTree()
-{
-	NodePtr root = make_shared<Node>("S사의 게임 조직도");
-	// 아트팀, 기획팀, 프로그래밍팀
-	{
-		NodePtr node = make_shared<Node>("아트팀");
-		root->children.push_back(node);
-		{
-			NodePtr leaf = make_shared<Node>("A");
-			node->children.push_back(leaf);
-		}
-		{
-			NodePtr leaf = make_shared<Node>("B");
-			node->children.push_back(leaf);
-		}
-	}
-	{
-		NodePtr node = make_shared<Node>("프로그래밍팀");
-		root->children.push_back(node);
-		{
-			NodePtr leaf = make_shared<Node>("A");
-			node->children.push_back(leaf);
-		}
-		{
-			NodePtr leaf = make_shared<Node>("B");
-			node->children.push_back(leaf);
-		}
-	}
-
-	return root;
-}
-
-// 트리 -> 재귀함수
-
-void Print(NodePtr root, int depth)
-{
-	for (int i = 0; i < depth; i++)
-		cout << "-";
-
-	cout << root->_data << endl;
-
-	for (auto& child : root->children)
-		Print(child, depth + 1);
-
-}
 
 // 트리 규칙을 정한다. 정책을 정한다.
 // 강제로 제한. 2명 이하로만 가질 수 있다. BST
@@ -152,16 +156,13 @@ void Print(NodePtr root, int depth)
 // 최대 자식은 2개만 가질 수 있는데, 왼쪽 부터 채워나가야 한다.
 // [0] [1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]
 
-// left children : 	i x 2 + 1;
-// right children : i x 2 + 2;
-// parent : (i - 1) / 2
+
 
 int main()
 {
-	//srand(time(nullptr));
-	//minDistance();
-	//examPQ();
-	NodePtr root =  CreateTree();
-	Print(root, 0);
+	srand(time(nullptr));
+	minDistance();
+	examPQ();
+
 }
 
