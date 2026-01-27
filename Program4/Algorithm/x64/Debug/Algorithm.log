@@ -1,3 +1,6 @@
 ﻿  main.cpp
-C:\Users\Administrator\Desktop\SBSPrograming4\Program4\Algorithm\main.cpp(30,12): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Administrator\Desktop\SBSPrograming4\Program4\Algorithm\main.cpp(28,8): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Administrator\Desktop\SBSPrograming4\Program4\Algorithm\main.cpp(53,8): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Administrator\Desktop\SBSPrograming4\Program4\Algorithm\main.cpp(84,8): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Administrator\Desktop\SBSPrograming4\Program4\Algorithm\main.cpp(197,12): warning C4244: '인수': 'time_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   Algorithm.vcxproj -> C:\Users\Administrator\Desktop\SBSPrograming4\Program4\x64\Debug\Algorithm.exe
