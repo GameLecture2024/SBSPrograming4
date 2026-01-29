@@ -11,139 +11,143 @@
 #include <algorithm>
 #include <string>
 #include <Windows.h>
+#include <memory.h>    
 using namespace std;
 
-// Hash Table
+// new - delete	 => 
 
-// 비용. BFS -> mindistance N^2 젤작은거 찾자. - 전수 조사
-// sort() -> nlogn
-// PQ -> O(1) - logn
+template <typename T>
+using Uptr = std::unique_ptr<T>;
 
-// [0] vector
-// [1] map vs hash table  
-// map -> logn
+enum class ItemType {WEAPON, ARMOR, CONSUMABLE};
+enum class WeaponType {SWORD, BOW};
+enum class ArmorType {HELMET, ARMOR};
+enum class ConsumeableType {POTION};
 
-// table - 시간을 위해 공간을 사용했다.
-// 어디까지 내줄건데?  
-
-void Table()
+// base 클래스.
+// ~소멸자 base에서 virtual 선언.
+class Item
 {
-	struct User
-	{
-		int id = 0;
-		int value;
-	};
+public:
+	Item(int id,string name) : _id(id), _name(name){}
+	virtual ~Item() = default;
 
-	vector<User> users;	 
-	users.resize(1000);
-	
-	users[999] = User{ 999, 999 * 10 };
+	virtual void Use() {}
 
-	// Q 999번 아이디의 유저가 가지고 있는 값을 출력하세요.
+public:
+	ItemType _type;
+	int _id;
+	string _name;
+};
 
-	cout << "유저가 가지고 있는 값 : " << users[999].value << endl;
-}
-
-// hash	- 
-// hashing?
-// 너무 많다. => 1억 ( ) => 1A  + 
-
-
-void Hash()
+class WeaponItem : public Item
 {
-	struct User
+public:
+	WeaponItem(int id, string name, WeaponType wtype, int damage)
+	: Item(id, name), _wtype(wtype), _damage(damage)
 	{
-		int id = 0;
-		string name;
-	};
-
-	vector<User> users;
-
-	users.resize(1000);
-
-	int userId = 123'456'789;
-	int key = (userId % 1000); // 0 ~ 999 = 1000개
-
-	users[key] = User{ userId, "AAA"};
-
-	int user2Id = 789;
-	int key2 = (user2Id % 1000);
-
-	users[key] = User{ user2Id, "BBB" };
-
-	// 숫자가 너무 크다. => 쪼개겠다. bucket [        ]
-
-	// 해결하기 위한 방법들을 생각을 했어야 한다.
-	// 이미 데이터가 들어 잇네? 넣지 않고 +1 그 다음에 자리가 있나? 선형 조사법 
-	// hash(key) + n^2  // ->									이차 조사법		   
-
-	// 체이닝 : 중복된 데이터가 있으면? 연속적으로 데이터를 이어가겠다.
-
-}
-
-
-// 789  {   ["AAA] -> [789, "BBB"]                          }
-// 이 데이터들 중에서 아이디가 AAA인 녀석을 찾아라?
-// 함수 -> 중복이 안되도록 하는 엄청나게 어썸한 코드. -> prime number..  제곱 수 ...  digit ...  
-
-void HashChaining()
-{
-	struct User
-	{
-		int id = 0;
-		string name;
-	};
-
-	vector<vector<User>> users;
-
-	users.resize(1000);
-
-	int userId = 123'456'789;
-	int key = (userId % 1000); // 0 ~ 999 = 1000개
-	int user2Id = 789;
-	int key2 = (user2Id % 1000);
-
-
-	users[key].push_back(User{ userId, "AAA" });
-	users[key2].push_back(User{ user2Id, "BBB" });
-
-	for (User& user : users[key])
-	{
-		if (user.id == user2Id)
-		{
-			cout << user.name << endl;
-		}
+		_type = ItemType::WEAPON;
 	}
 
-}
+	void Use() override
+	{
+		cout << "[" << _name << "] 사용했다." << "공격력 : " << _damage << endl;
+	}
 
-// struct User - id value - id * 100
+public:
+	WeaponType _wtype;
+	int _damage;
+};
 
-// map -> O(n)
-// Hash Table -> 탐색 시간 O(1)
-// 공간을 사용해서 시간을 매우 추구한 버전이다.
+class ArmorItem : public Item
+{
+public:
+	ArmorItem(int id, string name, ArmorType atype, int defence)
+		: Item(id, name), _atype(atype), _defence(defence)
+	{
+		_type = ItemType::ARMOR;
+	}
 
-// 로딩.. 데이터 초기화
-// 게임 플레이 => Database 99 -> 123 -> 10 
-// 99 <-  insert [10]
-// n << 아이템 업데이트. 1만. << 게임 렉이 걸려요
-// map< >  -  hash table< >	STL Cpp== unordered_map , C# == Dictionary
+	void Use() override
+	{
+		cout << "[" << _name << "] 사용했다." << "방어력 : " << _defence << endl;
+	}
+
+public:
+	ArmorType _atype;
+	int _defence;
+};
+
+class ConsumeableItem : public Item
+{
+public:
+	ConsumeableItem(int id, string name, ConsumeableType ctype, int stack)
+		: Item(id, name), _ctype(ctype), _stack(stack)
+	{
+		_type = ItemType::CONSUMABLE;
+	}
+
+	void Use() override
+	{
+		cout << "[" << _name << "] 사용했다." << "갯수 : " << _stack << endl;
+	}
+
+public:
+	ConsumeableType _ctype;
+	int _stack;
+};
 
 
-// vector, map, hash table << data table;
+// 1~~~~~
+// 100 ~~~
+// 200 ~~
 
 int main()
 {
-	//Table();
-	//Hash();
-	//HashChaining();
+	srand(time(0));
+#pragma region Item
+	unordered_map<int, Uptr<Item>> itemDict;
 
-	unordered_map<int, string> users;
+	vector<Uptr<WeaponItem>> weapons;
+	vector<Uptr<ArmorItem>> armors;
+	vector<Uptr<ConsumeableItem>> consumables;
 
-	users.insert(make_pair(123'456'789, "AAA"));
-	users.insert(make_pair(789, "BBB"));
+	weapons.push_back(make_unique<WeaponItem>(1, "검", WeaponType::SWORD, 10));
+	weapons.push_back(make_unique<WeaponItem>(2, "활", WeaponType::BOW, 5));
 
-	cout << users[789] << endl;
+	armors.push_back(make_unique<ArmorItem>(100, "투구", ArmorType::HELMET, 2));
+	armors.push_back(make_unique<ArmorItem>(101, "갑옷", ArmorType::ARMOR, 3));
+
+	consumables.push_back(make_unique<ConsumeableItem>(200, "포션", ConsumeableType::POTION, 1));
+
+	////////////////////// 데이터 Init /////////////////////////////////////////////////////////
+
+	for (auto& w : weapons)
+		itemDict.insert({ w->_id, std::move(w) });
+	for (auto& a : armors)
+		itemDict.insert({ a->_id, std::move(a) });
+	for (auto& c : consumables)
+		itemDict.insert({ c->_id, std::move(c) });
+
+#pragma endregion 
+
+	// 몬스터를 처치했다 - 보상을 획득한다.
+
+
+	if (!itemDict.empty())
+	{
+		int randValue = rand() % itemDict.size();
+		auto it = itemDict.begin();
+
+		advance(it, randValue);    //   iterator 반복문 버전.
+
+		Item* itemTemp = it->second.get();
+
+		cout << "아이템 획득: " << itemTemp->_name << endl;
+
+		itemTemp->Use();
+	}
+
 }
 
 
