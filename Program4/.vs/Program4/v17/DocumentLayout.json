@@ -5,6 +5,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{7CC48C68-3AF8-43A4-A2B3-FBE90C8C7F2C}|Algorithm\\Algorithm.vcxproj|C:\\Users\\Administrator\\Desktop\\SBSPrograming4\\Program4\\Algorithm\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{7CC48C68-3AF8-43A4-A2B3-FBE90C8C7F2C}|Algorithm\\Algorithm.vcxproj|solutionrelative:Algorithm\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{286065E9-2810-495C-A173-86D08BF045DB}|Maze\\Maze.vcxproj|C:\\Users\\Administrator\\Desktop\\SBSPrograming4\\Program4\\Maze\\Board.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{286065E9-2810-495C-A173-86D08BF045DB}|Maze\\Maze.vcxproj|solutionrelative:Maze\\Board.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 136,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,13 +42,26 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Board.cpp",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\SBSPrograming4\\Program4\\Maze\\Board.cpp",
+              "RelativeDocumentMoniker": "Maze\\Board.cpp",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\SBSPrograming4\\Program4\\Maze\\Board.cpp",
+              "RelativeToolTip": "Maze\\Board.cpp",
+              "ViewState": "AQIAADEAAAAAAAAAAAAAAEEAAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-01-30T08:37:45.43Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\SBSPrograming4\\Program4\\Algorithm\\main.cpp",
               "RelativeDocumentMoniker": "Algorithm\\main.cpp",
               "ToolTip": "C:\\Users\\Administrator\\Desktop\\SBSPrograming4\\Program4\\Algorithm\\main.cpp",
               "RelativeToolTip": "Algorithm\\main.cpp",
-              "ViewState": "AQIAABYAAAAAAAAAAAAAACIAAAANAAAA",
+              "ViewState": "AQIAAEwAAAAAAAAAAAAAAKAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-01-21T08:10:31.095Z",
               "EditorCaption": ""
