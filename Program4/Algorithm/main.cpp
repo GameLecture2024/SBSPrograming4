@@ -14,6 +14,9 @@
 #include <memory.h>    
 using namespace std;
 
+// Union :	합친다.	   Set
+// Find	 :	찾다.      root 부모  트리
+
 class Disjoint
 {
 public:
@@ -24,7 +27,7 @@ public:
 			_parent[i] = i;
 	}
 
-	int Find(int u)     //	나의 leader 찾는다. 
+	int Find(int u)     //	나의 leader 찾는다. 	부모 = 내가 곧 부모다.
 	{
 		if (u == _parent[u])
 			return u;
