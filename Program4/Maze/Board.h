@@ -4,7 +4,7 @@
 
 enum
 {
-	MAX_SIZE = 100
+	MAX_SIZE = 40
 };
 
 enum class TileType
@@ -12,6 +12,7 @@ enum class TileType
 	NONE = 0,
 	EMPTY,
 	WALL,
+	INVISIBLE,
 };
 
 class Player;
@@ -32,6 +33,8 @@ public:
 	void					GenerateMap();
 	TileType				GetTileType(Pos pos);
 	ConsoleColor			GetColorByTileType(Pos pos);
+	int32				    _level;
+
 private:
 	Player*					_player;
 	TileType				_tile[MAX_SIZE][MAX_SIZE];

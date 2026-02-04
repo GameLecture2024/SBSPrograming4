@@ -15,35 +15,68 @@ Player::~Player()
 void Player::Init(Board* board)
 {
     _board = board;
-
+    _pos = _board->GetStartPos();
     //RightHand();
     //BFS();
-    Astar();
+    //Astar();
 }
 
 
 void Player::Update(uint64 deltaTick)
 {
-    if (_pathIndex >= _path.size())
-    {
-        _pathIndex = 0;
-        _board->Init(_board->GetSize(), this); // Generatemap << 새로운 맵
-        Init(_board);
-        return;
-    }
-
     _sumTick += deltaTick;
 
     if (_sumTick >= MOVE_TICK)
     {
         _sumTick = 0;
 
-        // 경로를 읽어와서 하나씩 움직여라
-        _pos = _path[_pathIndex];       
-        _pathIndex++;
-        //RandomMove();
-    }
+        // 제공해주신 방향 벡터 배열 (위, 왼, 아래, 오)
+        Pos front[4] =
+        {
+            Pos{-1, 0},  // 0: 위 (Y축 감소)
+            Pos{0, -1},  // 1: 왼 (X축 감소)
+            Pos{1, 0},   // 2: 아래 (Y축 증가)
+            Pos{0, 1},   // 3: 오 (X축 증가)
+        };
 
+        Pos nextPos = _pos;
+
+        // 키 입력에 따라 배열의 인덱스를 활용해 좌표 계산
+        if (GetAsyncKeyState('W') & 0x8000)
+        {
+            nextPos.y += front[0].y;
+            nextPos.x += front[0].x;
+        }
+        else if (GetAsyncKeyState('A') & 0x8000)
+        {
+            nextPos.y += front[1].y;
+            nextPos.x += front[1].x;
+        }
+        else if (GetAsyncKeyState('S') & 0x8000)
+        {
+            nextPos.y += front[2].y;
+            nextPos.x += front[2].x;
+        }
+        else if (GetAsyncKeyState('D') & 0x8000)
+        {
+            nextPos.y += front[3].y;
+            nextPos.x += front[3].x;
+        }
+
+        // 갈 수 있는 곳인지 체크 후 이동
+        if (CanGo(nextPos))
+        {
+            _pos = nextPos;
+        }
+
+        Pos exit = _board->GetEndPos();
+
+        if (_pos == exit)
+        {
+            _board->Init(_board->GetSize() + _board->_level * 2, this);
+            Init(_board);
+        }
+    }
 
 }
 

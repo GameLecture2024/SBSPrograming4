@@ -19,22 +19,50 @@ void Board::Init(int32 size, Player* player)
 {
 	_size = size;
 	_player = player;
+	_level++;
 	GenerateMap();
 }
 
 void Board::Render()
 {
+	// 좌표 UI
+
+	ConsoleHelper::SetCursorPos(50, 0);
+
+	cout << "Stage " + _level;
+
 	ConsoleHelper::SetCursorPos(0, 0);
 	ConsoleHelper::ShowConsoleCursor(false);
 	
+	Pos playerPos = _player->GetPos();
+	const int VIEW_DISTANCE = 20; // 시야 거리 N (예: 3칸)
+
 	for (int y = 0; y < _size; y++)
 	{
 		for (int x = 0; x < _size; x++)
 		{
 			// TileType - WALL, EMPTY :  각각의 경우에는 색깔을 지정한 값을 출력하라.
+			Pos curPos = { y, x };
 
-			ConsoleColor color = GetColorByTileType(Pos{ y,x });
+			// 맨해튼 거리(Manhattan Distance) 계산: |y1 - y2| + |x1 - x2|
+			// 또는 유클리드 거리를 사용할 수 있습니다. 여기서는 격자 게임에 적합한 방식을 사용합니다.
+			int dist = abs(playerPos.y - curPos.y) + abs(playerPos.x - curPos.x);
+
+			ConsoleColor color;
+
+			if (dist > VIEW_DISTANCE)
+			{
+				// 플레이어와의 거리가 N보다 멀면 검정색(안개) 처리
+				color = ConsoleColor::BLACK;
+			}
+			else
+			{
+				// 시야 범위 안이면 정상적인 타일 색상 가져오기
+				color = GetColorByTileType(curPos);
+			}
+
 			ConsoleHelper::SetCursorColor(color);
+			
 			cout << "●";
 		}
 		cout << endl;
@@ -79,8 +107,11 @@ ConsoleColor Board::GetColorByTileType(Pos pos)
 		return ConsoleColor::GREEN;
 	case TileType::WALL:
 		return ConsoleColor::RED;
+	case TileType::INVISIBLE: // 시야 밖 타일 처리
+		return ConsoleColor::BLACK;
 	}
 }
+
 
 void Board::BinaryTree()
 {
